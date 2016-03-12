@@ -36,27 +36,42 @@ function issuelister (config) {
   xhr.open('GET', repos);
   xhr.send();
 
-  xhr.onload = handleResponse;
+  xhr.onreadystatechange = handleResponse;
 
   function handleResponse () {
 
-    var repos = JSON.parse(xhr.responseText);
+    if (xhr.status==200 && xhr.readyState==4) {
 
-    clog(repos);
+        var repos = JSON.parse(xhr.responseText);
 
-    for (var i = 0; i < repos.length; i++) {
+        clog(repos);
 
-      var repo = repos[i];
+        for (var i = 0; i < repos.length; i++) {
 
-      clog(repo);
+          var repo = repos[i];
 
-      if (repo.open_issues_count > 0) {
+          clog(repo);
 
-        getIssues(repo.url)
+          if (repo.open_issues_count > 0) {
 
-      }
+            getIssues(repo.url)
+
+          }
+
+        }
+
+    } else {
+
+        handleError();
 
     }
+
+  }
+
+  function handleError () {
+
+    document.querySelector('.issues').innerHTML = 'An error ('+xhr.status+') occured while loading.\n' +
+    'The message is: '+JSON.parse(xhr.responseText).message;
 
   }
 
